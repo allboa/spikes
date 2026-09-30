@@ -1,0 +1,68 @@
+## 50m coastline, densify 0.25 degrees, into EPSG:3031
+{"route":"ogr2ogr_arrow","seconds":0.26,"peak_mb_over_base":68,"ipc_mb":1.1}
+{"route":"pipeline_stream","seconds":0.10,"peak_mb_over_base":19,"ipc_mb":1.1}
+{"route":"vrt_warped","seconds":0.06,"peak_mb_over_base":15,"ipc_mb":0.9}
+{"route":"wk_proj_stream","seconds":0.09,"peak_mb_over_base":18,"ipc_mb":1.1}
+{"route":"wk_proj_memory","seconds":0.05,"peak_mb_over_base":15,"ipc_mb":0.9}
+ogr2ogr_arrow    features=1429 vertices=69949 nonfinite=0 max_diff_vs_ogr2ogr_m=0
+pipeline_stream  features=1428 vertices=69949 nonfinite=0 max_diff_vs_ogr2ogr_m=0
+vrt_warped       features=1428 vertices=60416 nonfinite=0 max_diff_vs_ogr2ogr_m=NA
+wk_proj_stream   features=1428 vertices=69949 nonfinite=0 max_diff_vs_ogr2ogr_m=0
+wk_proj_memory   features=1428 vertices=60416 nonfinite=0 max_diff_vs_ogr2ogr_m=NA
+## 10m coastline (2.8M vertices), no densify, into EPSG:3031, two runs
+{"route":"ogr2ogr_arrow","seconds":3.68,"peak_mb_over_base":489,"ipc_mb":42.4}
+{"route":"pipeline_stream","seconds":2.30,"peak_mb_over_base":368,"ipc_mb":42.3}
+{"route":"vrt_warped","seconds":2.38,"peak_mb_over_base":367,"ipc_mb":42.3}
+{"route":"wk_proj_stream","seconds":2.15,"peak_mb_over_base":317,"ipc_mb":42.3}
+{"route":"wk_proj_memory","seconds":2.60,"peak_mb_over_base":413,"ipc_mb":42.3}
+{"route":"ogr2ogr_arrow","seconds":2.69,"peak_mb_over_base":459,"ipc_mb":42.4}
+{"route":"pipeline_stream","seconds":2.16,"peak_mb_over_base":369,"ipc_mb":42.3}
+{"route":"vrt_warped","seconds":2.49,"peak_mb_over_base":367,"ipc_mb":42.3}
+{"route":"wk_proj_stream","seconds":1.73,"peak_mb_over_base":317,"ipc_mb":42.3}
+{"route":"wk_proj_memory","seconds":2.53,"peak_mb_over_base":413,"ipc_mb":42.3}
+ogr2ogr_arrow    features=4133 vertices=2772032 nonfinite=0 max_diff_vs_ogr2ogr_m=0
+pipeline_stream  features=4133 vertices=2772032 nonfinite=0 max_diff_vs_ogr2ogr_m=0
+vrt_warped       features=4133 vertices=2772032 nonfinite=0 max_diff_vs_ogr2ogr_m=0
+wk_proj_stream   features=4133 vertices=2772032 nonfinite=0 max_diff_vs_ogr2ogr_m=0
+wk_proj_memory   features=4133 vertices=2772032 nonfinite=0 max_diff_vs_ogr2ogr_m=0
+
+## North pole into EPSG:3031 
+
+ogr2ogr -t_srs:
+  POINT (0 4.012486351763636e+23)
+  LINESTRING (0 140429098.6524721, 0 4.012486351763636e+23, 1.719760461718979e-08 -140429098.6524721)
+ogr2ogr -t_srs -wrapdateline:
+  POINT (0 4.012486351763636e+23)
+  LINESTRING (0 140429098.6524721, 0 4.012486351763636e+23, 1.719760461718979e-08 -140429098.6524721)
+gdal vector pipeline reproject:
+  POINT (0 4.012486351763636e+23)
+  LINESTRING (0 140429098.6524721, 0 4.012486351763636e+23, 1.719760461718979e-08 -140429098.6524721)
+wk_transform + PROJ trans:
+  POINT (0 4.012486351763636e+23)
+  LINESTRING (0 140429098.6524721, 0 4.012486351763636e+23, 1.719760461718979e-08 -140429098.6524721)
+
+## Pole-enclosing ring, EPSG:3031 into OGC:CRS84 
+
+ogr2ogr -t_srs:
+  POLYGON ((-90 -80.81526528874716, 0 -80.81526528874716, 90 -80.81526528874716, 180 -80.8152652889068, 180 -90, -180 -90, -180 -80.8152652889068, -90 -80.81526528874716))
+ogr2ogr -t_srs -wrapdateline:
+  POLYGON ((-90 -80.81526528874716, 0 -80.81526528874716, 90 -80.81526528874716, 180 -80.8152652889068, 180 -90, -180 -90, -180 -80.8152652889068, -90 -80.81526528874716))
+gdal vector pipeline reproject:
+  POLYGON ((-90 -80.81526528874716, 0 -80.81526528874716, 90 -80.81526528874716, 180 -80.8152652889068, 180 -90, -180 -90, -180 -80.8152652889068, -90 -80.81526528874716))
+wk_transform + PROJ trans:
+  POLYGON ((90 -80.81526528874716, 0 -80.81526528874716, -90 -80.81526528874716, 180 -80.81526528874716, 90 -80.81526528874716))
+
+## Antimeridian-crossing line, EPSG:3031 into OGC:CRS84 
+
+ogr2ogr -t_srs:
+  MULTILINESTRING ((169.9999999999963 -70.00000000000161, 180 -70.29807756677003), (-180 -70.29807756677003, -169.9999999999963 -70.00000000000161))
+ogr2ogr -t_srs -wrapdateline:
+  MULTILINESTRING ((169.9999999999963 -70.00000000000161, 180 -70.29807756677003), (-180 -70.29807756677003, -169.9999999999963 -70.00000000000161))
+gdal vector pipeline reproject:
+  MULTILINESTRING ((169.9999999999963 -70.00000000000161, 180 -70.29807756677003), (-180 -70.29807756677003, -169.9999999999963 -70.00000000000161))
+wk_transform + PROJ trans:
+  LINESTRING (169.9999999999963 -70.00000000000161, -169.9999999999963 -70.00000000000161)
+
+## ne_50m_land, OGC:CRS84 into EPSG:3031
+
+ogr2ogr vertices: 60669; wk + PROJ vertices: 60669; max coordinate difference: 0 m
