@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gdalraster GeoArrow spike</title>
+<style>
+:root { --bg: #eef2f4; --ink: #1d2a33; --muted: #5b6b76; --map: #dfe7eb; --panel: #f8fafb; --rule: #d3dce1; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0f171c; --ink: #e3ebef; --muted: #93a4ae; --map: #0b1216; --panel: #152029; --rule: #26343e; }
+}
+:root[data-theme="dark"] { --bg: #0f171c; --ink: #e3ebef; --muted: #93a4ae; --map: #0b1216; --panel: #152029; --rule: #26343e; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.4 system-ui, sans-serif; display: flex; flex-direction: column; }
+header { padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--panel); }
+h1 { font-size: 16px; margin: 0 0 4px; }
+#meta, .status { font: 12px ui-monospace, Menlo, monospace; color: var(--muted); }
+.status.error { color: #b3261e; }
+.map { position: relative; flex: 1; background: var(--map); min-height: 0; }
+#deck { position: absolute; inset: 0; }
+.tag { position: absolute; left: 16px; top: 16px; font: 12px ui-monospace, monospace; background: var(--panel);
+  border: 1px solid var(--rule); padding: 4px 8px; border-radius: 4px; pointer-events: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Natural Earth 50m coastline, south of 40S: gdalraster Arrow stream to deck.gl</h1>
+  <div id="meta">loading...</div>
+  <div class="status" id="status">Decoding...</div>
+</header>
+<div class="map"><div id="deck"></div><div class="tag">EPSG:3031 / orthographic</div></div>
+<script src="bundle.js"></script>
+</body>
+</html>

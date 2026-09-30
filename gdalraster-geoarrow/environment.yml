@@ -1,0 +1,13 @@
+# conda-forge environment used for this spike (versions as resolved on 2026-09-30)
+name: gdalraster-geoarrow
+channels:
+  - conda-forge
+dependencies:
+  - r-base=4.5.3
+  - libgdal-core=3.13.3
+  - libgdal-arrow-parquet=3.13.3   # the Arrow and Parquet OGR drivers are a separate plugin package
+  - r-gdalraster=2.7.0
+  - r-nanoarrow=0.8.0_1
+  - r-geoarrow=0.4.4
+  - r-wk=0.9.5
+  - r-codetools
