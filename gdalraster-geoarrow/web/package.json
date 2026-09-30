@@ -1,0 +1,16 @@
+{
+  "name": "gdalraster-geoarrow-view",
+  "private": true,
+  "description": "Minimal deck.gl OrthographicView page that draws a native GeoArrow linestring IPC stream",
+  "scripts": {
+    "build": "esbuild main.js --bundle --minify --format=iife --outfile=bundle.js",
+    "shot": "node shot.mjs"
+  },
+  "devDependencies": {
+    "@deck.gl/core": "9.1.15",
+    "@deck.gl/layers": "9.1.15",
+    "apache-arrow": "17.0.0",
+    "esbuild": "0.25.10",
+    "playwright": "1.56.1"
+  }
+}
