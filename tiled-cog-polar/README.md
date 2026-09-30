@@ -60,7 +60,8 @@ transport and about 160 lines of browser code, all written here.
   with one round trip per settled view change. For a standalone page, R can
   ship the plan for every level up front: 139 tiles and 42 KiB of JSON for
   the 3031 COG. The lon/lat COG needs 45 tiles and 1.8 MiB of JSON, about
-  0.5 MiB as float32 buffers, and less if tiles share a mesh. The browser
+  1 MiB as binary buffers (positions, UVs, indices), and less if tiles
+  share a mesh. The browser
   then only filters tiles by footprint and pixel size (about 30 lines, the
   same test as `viewCrsTileIndices` in `src/traversal.js`).
 - Projection stays in R with full PROJ, so any source CRS works. The browser
