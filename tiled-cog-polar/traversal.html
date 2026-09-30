@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiled COG, browser traversal</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #dfe7eb; font-family: system-ui, sans-serif; }
+  #deck { position: absolute; inset: 0; }
+  #status { position: absolute; left: 8px; top: 8px; margin: 0; padding: 6px 8px; font: 12px ui-monospace, monospace;
+    background: rgba(248, 250, 251, 0.92); border: 1px solid #d3dce1; border-radius: 4px; white-space: pre; z-index: 2; }
+</style>
+</head>
+<body>
+<div id="deck"></div>
+<pre id="status">planning...</pre>
+<script type="module" src="dist/traversal.js"></script>
+</body>
+</html>

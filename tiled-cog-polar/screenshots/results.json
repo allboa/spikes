@@ -1,0 +1,275 @@
+{
+  "a_3031_far": {
+    "approach": "r-planned",
+    "cog": "polar_3031",
+    "view": "far",
+    "plans": 1,
+    "fetchedBytes": 239197,
+    "fetchedTiles": 4,
+    "level": 3,
+    "levels": 5,
+    "levelSize": [
+      320,
+      320
+    ],
+    "sourcePixelM": 40000,
+    "mPerDevicePx": 48888.888888888905,
+    "tiles": 4,
+    "planBytes": 1506,
+    "planMs": 20.3,
+    "roundTripMs": 282,
+    "meshVertices": 16
+  },
+  "a_3031_all": {
+    "approach": "r-planned",
+    "cog": "polar_3031",
+    "view": "all",
+    "plans": 1,
+    "fetchedBytes": 3645228,
+    "fetchedTiles": 25,
+    "level": 1,
+    "levels": 5,
+    "levelSize": [
+      1280,
+      1280
+    ],
+    "sourcePixelM": 10000,
+    "mPerDevicePx": 14999.999999999993,
+    "tiles": 25,
+    "planBytes": 7947,
+    "planMs": 3.9,
+    "roundTripMs": 454,
+    "meshVertices": 100
+  },
+  "a_3031_coast": {
+    "approach": "r-planned",
+    "cog": "polar_3031",
+    "view": "coast",
+    "plans": 1,
+    "fetchedBytes": 2721954,
+    "fetchedTiles": 12,
+    "level": 0,
+    "levels": 5,
+    "levelSize": [
+      2560,
+      2560
+    ],
+    "sourcePixelM": 5000,
+    "mPerDevicePx": 3333.333333333332,
+    "tiles": 12,
+    "planBytes": 3807,
+    "planMs": 7.5,
+    "roundTripMs": 322,
+    "meshVertices": 48
+  },
+  "a_3031_pole": {
+    "approach": "r-planned",
+    "cog": "polar_3031",
+    "view": "pole",
+    "plans": 1,
+    "fetchedBytes": 938160,
+    "fetchedTiles": 4,
+    "level": 0,
+    "levels": 5,
+    "levelSize": [
+      2560,
+      2560
+    ],
+    "sourcePixelM": 5000,
+    "mPerDevicePx": 444.4444444444445,
+    "tiles": 4,
+    "planBytes": 1406,
+    "planMs": 8.1,
+    "roundTripMs": 302,
+    "meshVertices": 16
+  },
+  "a_3031_all_clean": {
+    "approach": "r-planned",
+    "cog": "polar_3031",
+    "view": "all",
+    "plans": 1,
+    "fetchedBytes": 3645228,
+    "fetchedTiles": 25,
+    "level": 1,
+    "levels": 5,
+    "levelSize": [
+      1280,
+      1280
+    ],
+    "sourcePixelM": 10000,
+    "mPerDevicePx": 14999.999999999993,
+    "tiles": 25,
+    "planBytes": 7947,
+    "planMs": 2.1,
+    "roundTripMs": 458,
+    "meshVertices": 100
+  },
+  "a_4326_far": {
+    "approach": "r-planned",
+    "cog": "polar_4326",
+    "view": "far",
+    "plans": 1,
+    "fetchedBytes": 393676,
+    "fetchedTiles": 4,
+    "level": 2,
+    "levels": 5,
+    "levelSize": [
+      900,
+      125
+    ],
+    "sourcePixelM": 44528,
+    "mPerDevicePx": 48888.888888888905,
+    "tiles": 4,
+    "planBytes": 365483,
+    "planMs": 15.5,
+    "roundTripMs": 220,
+    "meshVertices": 4862
+  },
+  "a_4326_all": {
+    "approach": "r-planned",
+    "cog": "polar_4326",
+    "view": "all",
+    "plans": 1,
+    "fetchedBytes": 6002751,
+    "fetchedTiles": 30,
+    "level": 0,
+    "levels": 5,
+    "levelSize": [
+      3600,
+      500
+    ],
+    "sourcePixelM": 11132,
+    "mPerDevicePx": 14999.999999999993,
+    "tiles": 30,
+    "planBytes": 383148,
+    "planMs": 18.3,
+    "roundTripMs": 549,
+    "meshVertices": 5544
+  },
+  "a_4326_pole": {
+    "approach": "r-planned",
+    "cog": "polar_4326",
+    "view": "pole",
+    "plans": 1,
+    "fetchedBytes": 3030254,
+    "fetchedTiles": 15,
+    "level": 0,
+    "levels": 5,
+    "levelSize": [
+      3600,
+      500
+    ],
+    "sourcePixelM": 11132,
+    "mPerDevicePx": 444.4444444444445,
+    "tiles": 15,
+    "planBytes": 189550,
+    "planMs": 17.7,
+    "roundTripMs": 442,
+    "meshVertices": 2772
+  },
+  "a_4326_antimeridian": {
+    "approach": "r-planned",
+    "cog": "polar_4326",
+    "view": "antimeridian",
+    "plans": 1,
+    "fetchedBytes": 1315250,
+    "fetchedTiles": 8,
+    "level": 0,
+    "levels": 5,
+    "levelSize": [
+      3600,
+      500
+    ],
+    "sourcePixelM": 11132,
+    "mPerDevicePx": 1333.3333333333335,
+    "tiles": 8,
+    "planBytes": 84853,
+    "planMs": 10.3,
+    "roundTripMs": 304,
+    "meshVertices": 1232
+  },
+  "b_3031_far": {
+    "approach": "browser-traversal",
+    "cog": "polar_3031",
+    "view": "far",
+    "fetchedTiles": 4,
+    "warnings": 0,
+    "selected": 4,
+    "selectedLevels": [
+      3
+    ]
+  },
+  "b_3031_all": {
+    "approach": "browser-traversal",
+    "cog": "polar_3031",
+    "view": "all",
+    "fetchedTiles": 25,
+    "warnings": 0,
+    "selected": 25,
+    "selectedLevels": [
+      1
+    ]
+  },
+  "b_3031_pole": {
+    "approach": "browser-traversal",
+    "cog": "polar_3031",
+    "view": "pole",
+    "fetchedTiles": 4,
+    "warnings": 0,
+    "selected": 4,
+    "selectedLevels": [
+      0
+    ]
+  },
+  "b_4326_all_stock": {
+    "approach": "browser-traversal",
+    "cog": "polar_4326",
+    "view": "all",
+    "fetchedTiles": 30,
+    "warnings": 16,
+    "selected": 30,
+    "selectedLevels": [
+      0
+    ]
+  },
+  "b_4326_all_forward": {
+    "approach": "browser-traversal",
+    "cog": "polar_4326",
+    "view": "all",
+    "fetchedTiles": 30,
+    "warnings": 0,
+    "selected": 30,
+    "selectedLevels": [
+      0
+    ]
+  },
+  "a_3031_wheel": {
+    "steps": [
+      {
+        "level": 3,
+        "tiles": 4,
+        "plans": 1
+      },
+      {
+        "level": 2,
+        "tiles": 9,
+        "plans": 2
+      },
+      {
+        "level": 1,
+        "tiles": 25,
+        "plans": 3
+      },
+      {
+        "level": 1,
+        "tiles": 25,
+        "plans": 4
+      },
+      {
+        "level": 0,
+        "tiles": 36,
+        "plans": 5
+      }
+    ]
+  }
+}
