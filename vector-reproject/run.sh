@@ -33,4 +33,8 @@ for i in 1 2; do
 done
 Rscript "$here/compare.R" big
 
+echo "## pipeline_stream with GDAL's Arrow and Parquet drivers switched off"
+GDAL_SKIP="Arrow Parquet" Rscript -e 'cat("Arrow driver present:", "Arrow" %in% gdalraster::gdal_formats()$short_name, "\n")' 2>/dev/null | tail -1
+GDAL_SKIP="Arrow Parquet" Rscript "$here/bench.R" pipeline_stream coast50.gpkg EPSG:3031 0.25 out/noarrow_pipeline_stream.arrows
+
 Rscript "$here/edge.R" "$data"

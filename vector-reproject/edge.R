@@ -68,7 +68,14 @@ run("Antimeridian-crossing line, EPSG:3031 into OGC:CRS84",
        "EPSG:3031"),
     "OGC:CRS84")
 
-## 4. Natural Earth 50m land (Antarctica closes through -90 along +-180),
+## 4. The same line into projected targets whose seam is at 180 degrees.
+f <- mk("am", sprintf("LINESTRING (%.6f %.6f, %.6f %.6f)", p$x[1], p$y[1], p$x[2], p$y[2]),
+        "EPSG:3031")
+for (crs in c("EPSG:3857", "EPSG:8857")) {
+  run(paste("Antimeridian-crossing line, EPSG:3031 into", crs), f, crs)
+}
+
+## 5. Natural Earth 50m land (Antarctica closes through -90 along +-180),
 ##    lon/lat into EPSG:3031: are the two routes identical?
 f <- file.path(data_dir, "land50.gpkg")
 a <- wk_coords(via_ogr2ogr(f, "EPSG:3031"))
