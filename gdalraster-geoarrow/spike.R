@@ -7,7 +7,7 @@
 # Three routes are tried and reported:
 #   A. GeoJSON source, GDALVector$getArrowStream() with each encoding option.
 #   B. GDAL does clip + reproject + GeoArrow encoding (ogr2ogr to the Arrow
-#      driver with GEOMETRY_ENCODING=GEOARROW, in /vsimem), then
+#      driver with GEOMETRY_ENCODING=GEOARROW_INTERLEAVED, in /vsimem), then
 #      GDALVector$getArrowStream() on that dataset. Written to IPC by nanoarrow.
 #   C. Route A's WKB stream converted in R by geoarrow (the R-side fallback).
 #
