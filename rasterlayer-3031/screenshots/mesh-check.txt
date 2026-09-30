@@ -1,0 +1,13 @@
+metric   wrap  converged  maxErr(px)  vertices  triangles  ms  case
+inverse  false false        1800.000     10005      10736  130  lon -180..180, lat -40..-90 (seam at image edge, pole row)  (10629 zero-area tris)
+inverse  true  false        3600.000     10005      10003  101  lon -180..180, lat -40..-90 (seam at image edge, pole row)  (10003 zero-area tris)
+forward  -     false           0.216     10005      19859  447  lon -180..180, lat -40..-90 (seam at image edge, pole row)  (1 zero-area tris)
+inverse  false false        3600.000     10005      10003   82  lon 90..270,  lat -40..-90 (seam inside image, pole row)  (10003 zero-area tris)
+inverse  true  false        2700.000     10005      10003   79  lon 90..270,  lat -40..-90 (seam inside image, pole row)  (10003 zero-area tris)
+forward  -     true            0.125      5372      10587  224  lon 90..270,  lat -40..-90 (seam inside image, pole row)  (1 zero-area tris)
+inverse  false false        3600.000     10005      10003   75  lon 90..270,  lat -40..-89.9 (seam inside, stops short of pole)  (10003 zero-area tris)
+inverse  true  false           0.313     10005      19926  228  lon 90..270,  lat -40..-89.9 (seam inside, stops short of pole)  (0 zero-area tris)
+forward  -     true            0.125      5355      10550  224  lon 90..270,  lat -40..-89.9 (seam inside, stops short of pole)  (0 zero-area tris)
+inverse  false false        3600.000     10005      10003   77  lon 90..270,  lat -40..-80 (seam inside, no pole)  (10003 zero-area tris)
+inverse  true  true            0.125      8221      16254  199  lon 90..270,  lat -40..-80 (seam inside, no pole)  (0 zero-area tris)
+forward  -     true            0.125      5323      10458  236  lon 90..270,  lat -40..-80 (seam inside, no pole)  (0 zero-area tris)
