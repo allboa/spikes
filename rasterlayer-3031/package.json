@@ -1,0 +1,29 @@
+{
+  "name": "spike-rasterlayer-3031",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cogs": "python3 make_cogs.py",
+    "build": "esbuild src/main.js --bundle --format=esm --target=es2022 --external:module --outfile=dist/app.js --log-level=warning",
+    "serve": "node serve.mjs 8931",
+    "shots": "node screenshot.mjs"
+  },
+  "dependencies": {
+    "@deck.gl/core": "^9.4.0",
+    "@deck.gl/geo-layers": "^9.4.0",
+    "@deck.gl/layers": "^9.4.0",
+    "@deck.gl/mesh-layers": "^9.4.0",
+    "@developmentseed/deck.gl-raster": "0.8.1",
+    "@developmentseed/geotiff": "0.8.1",
+    "@developmentseed/morecantile": "0.8.1",
+    "@developmentseed/raster-reproject": "0.8.1",
+    "@luma.gl/core": "^9.4.0",
+    "@luma.gl/shadertools": "^9.4.0",
+    "@luma.gl/webgl": "^9.4.0",
+    "proj4": "^2.22.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "playwright-core": "^1.63.0"
+  }
+}
