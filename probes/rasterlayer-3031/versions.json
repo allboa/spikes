@@ -1,0 +1,6 @@
+{
+  "_comment": "Each entry pins one deck.gl-raster release line. All @developmentseed packages share a version. watch: true means a mismatch with expect.json is reported but does not fail the run (betas).",
+  "0.8.1": { "devseed": "0.8.1", "deckgl": "9.4.1", "watch": false },
+  "0.9.0": { "devseed": "0.9.0", "deckgl": "9.4.1", "watch": false },
+  "beta": { "devseed": "beta", "deckgl": "9.4.1", "watch": true }
+}

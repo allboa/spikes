@@ -1,0 +1,55 @@
+name: probe-rasterlayer-3031
+
+# The 0001 polar probe (probes/rasterlayer-3031): does deck.gl-raster's
+# RasterLayer draw over the pole in EPSG:3031, release by release.
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"   # Mondays
+  workflow_dispatch:
+    inputs:
+      entries:
+        description: "versions.json entries to run, space separated (empty: all)"
+        required: false
+        default: ""
+  pull_request:
+    paths:
+      - "probes/rasterlayer-3031/**"
+      - "rasterlayer-3031/make_cogs.py"
+      - ".github/workflows/probe-rasterlayer-3031.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: probes/rasterlayer-3031
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python packages for the COGs
+        run: pip install numpy rasterio pyproj
+      - name: Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Run the probe
+        env:
+          ENTRIES: ${{ github.event.inputs.entries }}
+        run: node run.mjs $ENTRIES
+      - name: Summary
+        if: always()
+        run: cat results/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-rasterlayer-3031
+          path: probes/rasterlayer-3031/results/
