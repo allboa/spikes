@@ -1,7 +1,7 @@
 // Run the 0001 polar probe against one or more deck.gl-raster versions.
 //
 //   node run.mjs                 every entry in versions.json
-//   node run.mjs 0.9.0 next      just those entries
+//   node run.mjs 0.9.0 beta      just those entries
 //
 // For each entry: install the pinned packages into .runs/<entry>/, bundle
 // src/ against them, render each case in headless Chromium, sample pixels
@@ -35,7 +35,7 @@ const grid = (lats, lons) => lats.flatMap((lat) => lons.map((lon) => [lon, lat])
 const every = (step, off) => Array.from({ length: 360 / step }, (_, i) => -180 + off + i * step);
 const ALL = grid([-45, -55, -65, -75, -85], every(15, 7.5));
 const POLE = grid([-88.5, -89.5], every(30, 15));
-const SEAM = grid([-63, -67, -73], [176, 178.5, -178.5, -176]);
+const SEAM = grid([-63, -67, -73], [176, 178.5, 179.8, -179.8, -178.5, -176]);
 const in90270 = ([lon]) => lon >= 90 || lon <= -90;
 const CASES = [
   { name: "3031", qs: "case=3031", focus: "all", pts: ALL },
@@ -69,7 +69,7 @@ async function runVersion(key) {
       "@luma.gl/core": "^9.4.0", "@luma.gl/shadertools": "^9.4.0", "@luma.gl/webgl": "^9.4.0",
       "@developmentseed/deck.gl-raster": dv, "@developmentseed/geotiff": dv,
       "@developmentseed/morecantile": dv, "@developmentseed/raster-reproject": dv,
-      "proj4": "^2.22.0", "esbuild": "^0.28.0", "playwright-core": "^1.63.0", "pngjs": "^7.0.0",
+      "proj4": "^2.22.0", "esbuild": "^0.28.0", "playwright-core": "1.63.0", "pngjs": "^7.0.0",
     },
   }, null, 2));
   sh("npm install --no-audit --no-fund --loglevel=error", dir);
@@ -123,11 +123,13 @@ async function runVersion(key) {
         n++;
         if (Math.abs(px[0] - BG[0]) + Math.abs(px[1] - BG[1]) + Math.abs(px[2] - BG[2]) > 12) hit++;
       }
-      share = n ? hit / n : 0;
-      outcome = share >= 0.9 ? "draws" : share <= 0.1 ? "blank" : "partial";
+      share = n ? hit / n : null;
+      outcome = n === 0 ? "no points" : share >= 0.9 ? "draws" : share <= 0.1 ? "blank" : "partial";
     }
     const want = c.pts ? ((expect[key] || {})[c.name] || (expect[installed] || {})[c.name] || expect.default[c.name]) : null;
-    results.cases[c.name] = { outcome, expected: want, ok: want ? outcome === want : null, share, ...r, pageErrors: errors };
+    // A page that failed is never a pass, even where the expectation is blank.
+    if (r.error || errors.length) outcome = "error";
+    results.cases[c.name] = { outcome, expected: want, ok: want ? outcome === want : (outcome === "error" ? false : null), share, ...r, pageErrors: errors };
     console.log(`${key} ${c.name}: ${outcome}${want ? (outcome === want ? "" : `  (expected ${want})`) : ""}`);
   }
   await browser.close();
@@ -136,16 +138,23 @@ async function runVersion(key) {
   return results;
 }
 
+// One entry failing to install or render must not stop the others.
 const all = [];
-for (const key of wanted) all.push(await runVersion(key));
+for (const key of wanted) {
+  try { all.push(await runVersion(key)); }
+  catch (e) {
+    console.error(`${key}: run failed: ${e.message}`);
+    all.push({ version: key, runError: e.message, cases: {} });
+  }
+}
 
 // ---- summary across every results/<entry>/results.json present ----
 const resDir = path.join(here, "results");
-const runs = fs.readdirSync(resDir).filter((d) => fs.existsSync(path.join(resDir, d, "results.json")))
-  .map((d) => JSON.parse(fs.readFileSync(path.join(resDir, d, "results.json"), "utf8")));
+fs.mkdirSync(resDir, { recursive: true });
+const runs = all.filter((r) => !r.runError);
 const names = CASES.map((c) => c.name);
 let md = "# Probe results: RasterLayer in EPSG:3031\n\n";
-md += "Written by `run.mjs`. Each cell is the outcome (draws, blank or partial: the share of sample points over the data that are not background), marked with `!` where it differs from `expect.json`. Mesh is the layer's own: vertices and the error left, in the layer's metric.\n\n";
+md += "Written by `run.mjs`. Each cell is the outcome (draws, blank, partial, or error when the page failed: from the share of sample points over the data that are not background), marked with `!` where it differs from `expect.json`. Mesh is the layer's own: vertices and the error left, in the layer's metric.\n\n";
 md += "| case | " + runs.map((r) => `${r.version} (${r.installed})`).join(" | ") + " |\n";
 md += "| --- | " + runs.map(() => "---").join(" | ") + " |\n";
 for (const n of names) {
@@ -156,8 +165,9 @@ for (const n of names) {
     return `${c.outcome}${c.ok === false ? " !" : ""}${mesh}`;
   }).join(" | ") + " |\n";
 }
+for (const r of all.filter((r) => r.runError)) md += `\n${r.version}: run failed: ${r.runError}\n`;
 fs.writeFileSync(path.join(resDir, "summary.md"), md);
 console.log("\n" + md);
 
-const failed = all.filter((r) => !versions[r.version].watch && Object.values(r.cases).some((c) => c.ok === false));
+const failed = all.filter((r) => !(versions[r.version] || {}).watch && (r.runError || Object.values(r.cases).some((c) => c.ok === false)));
 if (failed.length) { console.error(`expectations not met: ${failed.map((r) => r.version).join(", ")}`); process.exit(1); }

@@ -42,7 +42,9 @@ jobs:
           npm install --no-save --no-audit --no-fund playwright@1.63.0
           npx playwright install --with-deps chromium
       - name: Run the probe
-        run: node run.mjs ${{ github.event.inputs.entries }}
+        env:
+          ENTRIES: ${{ github.event.inputs.entries }}
+        run: node run.mjs $ENTRIES
       - name: Summary
         if: always()
         run: cat results/summary.md >> "$GITHUB_STEP_SUMMARY" || true
