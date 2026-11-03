@@ -1,0 +1,21 @@
+{
+  "_comment": "Expected outcome per case and version: draws (the sampled points over the data are not background) or blank. A version not listed uses default. Change an entry only with a note in README.md saying what changed upstream.",
+  "default": {
+    "3031": "draws",
+    "3031_pole": "draws",
+    "3031_antimeridian": "draws",
+    "4326": "draws",
+    "4326_pole": "draws",
+    "4326_antimeridian": "draws",
+    "4326-90-270": "draws"
+  },
+  "0.8.1": {
+    "4326": "blank",
+    "4326_pole": "blank",
+    "4326_antimeridian": "blank",
+    "4326-90-270": "blank",
+    "4326_forward": "draws",
+    "4326_forward_pole": "draws",
+    "4326_forward_antimeridian": "draws"
+  }
+}
