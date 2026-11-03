@@ -1,0 +1,54 @@
+name: probe-deckgl-crs-gate
+
+# Decision 0012's gate (probes/deckgl-crs-gate): can a deck.gl release draw
+# lon/lat data in an EPSG:3031 view by itself, within 1 px of PROJ?
+
+on:
+  schedule:
+    - cron: "37 3 * * 1"   # Mondays
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "deck.gl version to try as v10 (empty: newest 10.x on npm)"
+        required: false
+        default: ""
+  pull_request:
+    paths:
+      - "probes/deckgl-crs-gate/**"
+      - ".github/workflows/probe-deckgl-crs-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: probes/deckgl-crs-gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python packages for the reference
+        run: pip install pyproj
+      - name: Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Check the gate
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+        run: node gate.mjs $VERSION
+      - name: Summary
+        if: always()
+        run: cat results/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-deckgl-crs-gate
+          path: probes/deckgl-crs-gate/results/

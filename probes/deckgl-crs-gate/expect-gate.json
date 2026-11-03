@@ -1,0 +1,6 @@
+{
+  "_comment": "The gate states last acknowledged. gate.mjs exits 3 when a run differs, so CI goes red the week a gate opens. Update after acting on decision 0012.",
+  "1": "closed",
+  "2": "not run",
+  "3": "not run"
+}
