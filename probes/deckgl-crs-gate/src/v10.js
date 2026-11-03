@@ -7,15 +7,15 @@
 // and the gate counts an error as "not ready". When v10 settles, fix this page
 // to its real API; nothing else in the probe needs to change.
 import * as core from "@deck.gl/core";
-import { PathLayer } from "@deck.gl/layers";
-import { ZOOM, INK, loadLines, done, fail, result } from "./common.js";
+import * as L from "@deck.gl/layers";
+import { ZOOM, loadLines, layersFor, done, fail, result } from "./common.js";
 
-const EPSG4326 = { type: "GeographicCRS", name: "WGS 84", id: { authority: "EPSG", code: 4326 } };
-const EPSG3031 = { type: "ProjectedCRS", name: "WGS 84 / Antarctic Polar Stereographic", id: { authority: "EPSG", code: 3031 } };
 const CANDIDATES = ["_CustomProjectionView", "CustomProjectionView", "ProjectedView", "OrthographicView"];
 
 async function main() {
-  const { lonlat } = await loadLines();
+  // PROJJSON for both CRSs, written by PROJ in make_ref.py
+  const d = await loadLines();
+  const EPSG4326 = d.crs4326, EPSG3031 = d.crs3031;
   result.info.version = core.VERSION;
   result.info.exports = CANDIDATES.filter((k) => k in core);
   const View = core._CustomProjectionView || core.CustomProjectionView || core.ProjectedView;
@@ -24,10 +24,7 @@ async function main() {
     parent: document.getElementById("deck"),
     views: new View({ id: "v", toCrs: EPSG3031, crs: EPSG3031 }),
     initialViewState: { target: [0, 0, 0], zoom: ZOOM },
-    layers: [new PathLayer({
-      id: "lines", data: lonlat, getPath: (d) => d, getColor: INK, getWidth: 1, widthUnits: "pixels",
-      coordinateSystem: EPSG4326
-    })],
+    layers: layersFor(L, { paths: d.lonlat, rings: d.rings.map((r) => [r]), points: d.points, coordinateSystem: EPSG4326 }),
     onAfterRender: () => setTimeout(() => done({ mode: "v10" }), 300),
     onError: fail
   });

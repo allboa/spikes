@@ -4,9 +4,9 @@
 //   mode=proj4       proj4js on the sparse vertices only (no subdivision)
 //   mode=proj4dense  proj4js on vertices densified in lon/lat (0.05 degrees)
 import { Deck, OrthographicView, COORDINATE_SYSTEM } from "@deck.gl/core";
-import { PathLayer } from "@deck.gl/layers";
+import * as L from "@deck.gl/layers";
 import proj4 from "proj4";
-import { ZOOM, INK, loadLines, done, fail } from "./common.js";
+import { ZOOM, loadLines, layersFor, done, fail } from "./common.js";
 
 const MODE = new URLSearchParams(location.search).get("mode") || "ref";
 const P = proj4("EPSG:4326", "+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs");
@@ -22,19 +22,17 @@ function densify(line, step) {
 }
 
 async function main() {
-  const { lonlat, ref } = await loadLines();
-  let paths;
-  if (MODE === "ref") paths = ref;
-  else if (MODE === "proj4") paths = lonlat.map((l) => l.map((p) => P.forward(p)));
-  else paths = lonlat.map((l) => densify(l, 0.05).map((p) => P.forward(p)));
+  const d = await loadLines();
+  const fwd = (l) => l.map((p) => P.forward(p));
+  let paths, rings, points;
+  if (MODE === "ref") { paths = d.ref; rings = d.refRings; points = d.refPoints; }
+  else if (MODE === "proj4") { paths = d.lonlat.map(fwd); rings = d.rings.map(fwd); points = fwd(d.points); }
+  else { paths = d.lonlat.map((l) => fwd(densify(l, 0.05))); rings = d.rings.map((r) => fwd(densify(r, 0.05))); points = fwd(d.points); }
   new Deck({
     parent: document.getElementById("deck"),
     views: new OrthographicView({ id: "v", flipY: false }),
     initialViewState: { target: [0, 0, 0], zoom: ZOOM },
-    layers: [new PathLayer({
-      id: "lines", data: paths, getPath: (d) => d, getColor: INK, getWidth: 1, widthUnits: "pixels",
-      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN
-    })],
+    layers: layersFor(L, { paths, rings: rings.map((r) => [r]), points, coordinateSystem: COORDINATE_SYSTEM.CARTESIAN }),
     onAfterRender: () => setTimeout(() => done({ mode: MODE, vertices: paths.reduce((a, p) => a + p.length, 0) }), 300),
     onError: fail
   });

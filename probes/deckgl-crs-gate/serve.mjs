@@ -1,4 +1,4 @@
-// Minimal static server with HTTP Range support (COG readers need it).
+// Minimal static server with HTTP Range support.
 // Usage: node serve.mjs [port] [root]
 import http from "node:http";
 import fs from "node:fs";

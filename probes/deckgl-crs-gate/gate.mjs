@@ -4,19 +4,23 @@
 //   node gate.mjs            check npm, run the baseline, and run v10 if found
 //   node gate.mjs 10.0.0-beta.1   run v10 at that version, whatever npm says
 //
-// Gate 1: a deck.gl v10 version (release or prerelease) is on npm.
-// Gate 2: the v10 page draws: 90 percent or more of the reference line pixels
-//         have ink within 2 px.
+// Gate 1: a deck.gl v10 version (release or prerelease) is on npm. Whether
+//         it has PROJJSON coordinateSystem (deck.gl#10894) is tested by gate 2,
+//         since the page uses it.
+// Gate 2: the v10 page draws, by the 0001 probe's rule: 90 percent or more of
+//         sample points on the reference data have ink (within 1 px).
 // Gate 3: tolerance: symmetric distance between the v10 drawing and the
-//         reference drawing (PROJ, densified) is at most 1 px.
+//         reference drawing (PROJ, densified) is at most 1 px, for lines,
+//         polygon rings and points together.
 //
 // The baseline runs every time on deck.gl 9.4 and proves the harness: PROJ's
 // reference against proj4js on densified vertices must pass the tolerance, and
 // proj4js on sparse vertices (no subdivision) is expected to fail it.
 //
-// Writes results/ (screenshots, gate.json, summary.md). Exits 1 only when the
-// harness itself is broken (the baseline does not behave as above); a gate
-// that is not yet open is a result, not a failure.
+// Writes results/ (screenshots, gate.json, summary.md). Exits 1 when the
+// harness itself is broken (the baseline does not behave as above), and 3 when
+// a gate's state differs from expect-gate.json, so CI goes red the week a gate
+// opens (or closes again). Updating expect-gate.json acknowledges it.
 //
 // Needs: node 20+, python3 with pyproj, and Chromium (CHROMIUM=path, or the
 // playwright package's own).
@@ -24,8 +28,9 @@ import { spawn, execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 
-const here = path.dirname(new URL(import.meta.url).pathname);
+const here = path.dirname(fileURLToPath(import.meta.url));
 const sh = (cmd, cwd, quiet) => String(execSync(cmd, { cwd, stdio: quiet ? ["ignore", "pipe", "pipe"] : "inherit" }) || "");
 const SIZE = 900;
 const BASELINE = "9.4.1";
@@ -46,6 +51,7 @@ if (!v10) {
   npmNote = `dist-tags ${JSON.stringify(tags)}; ${candidates.length} version(s) 10 or later`;
 } else {
   npmNote = `version ${v10} given on the command line`;
+  if (major(v10) < 10) npmNote += " (not a 10.x version: a test of the v10 path only)";
 }
 
 // ---- install and bundle one page against one deck.gl version ----
@@ -127,26 +133,35 @@ function oneWay(a, b, R = 10) {
     if (d <= 1) within1++;
     if (d > maxd) maxd = d;
   }
-  return { ink: n, within1: n ? within1 / n : 0, max: maxd };
+  return { ink: n, within1: n ? within1 / n : 0, max: maxd, capped: maxd > R };
 }
 function compare(a, ref) {
   const fwd = oneWay(a, ref), back = oneWay(ref, a);
-  // "draws": 90 percent of the reference ink has ink within 2 px
-  const near = oneWayShare(ref, a, 2);
   const pass = fwd.ink > 0 && fwd.within1 === 1 && back.within1 === 1;
-  return { ink: fwd.ink, drawn: near, toRef: fwd, fromRef: back, maxPx: Math.max(fwd.max, back.max), pass };
+  const capped = fwd.capped || back.capped;
+  return { ink: fwd.ink, drawn: drawnShare(a), toRef: fwd, fromRef: back,
+    maxPx: capped ? ">10" : Math.max(fwd.max, back.max), pass };
 }
-function oneWayShare(a, b, r) {
-  let n = 0, hit = 0;
-  for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
-    if (!a[y * SIZE + x]) continue;
-    n++;
-    search: for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
-      const xx = x + dx, yy = y + dy;
-      if (xx >= 0 && yy >= 0 && xx < SIZE && yy < SIZE && b[yy * SIZE + xx]) { hit++; break search; }
-    }
+
+// The 0001 rule: sample points on the reference data (every 40th vertex of
+// lines and rings, and the right edge of each point's circle), mapped to the
+// screen with the pages' camera; the share that have ink within 1 px.
+const lines = JSON.parse(fs.readFileSync(path.join(dataDir, "lines.json"), "utf8"));
+const SCALE = (SIZE * 0.95) / 12e6;   // as src/common.js: SIZE * 0.95 / EXTENT
+const toScreen = ([x, y]) => [Math.round(SIZE / 2 + x * SCALE), Math.round(SIZE / 2 - y * SCALE)];
+const SAMPLES = [
+  ...lines.ref.flatMap((l) => l.filter((_, i) => i % 40 === 20)).map(toScreen),
+  ...lines.refRings.flatMap((l) => l.filter((_, i) => i % 40 === 20)).map(toScreen),
+  ...lines.refPoints.map(toScreen).map(([x, y]) => [x + 4, y]),
+].filter(([x, y]) => x >= 1 && y >= 1 && x < SIZE - 1 && y < SIZE - 1);
+function drawnShare(mask) {
+  let hit = 0;
+  for (const [x, y] of SAMPLES) {
+    let ink = false;
+    for (let dy = -1; dy <= 1 && !ink; dy++) for (let dx = -1; dx <= 1; dx++) if (mask[(y + dy) * SIZE + x + dx]) { ink = true; break; }
+    if (ink) hit++;
   }
-  return n ? hit / n : 0;
+  return SAMPLES.length ? hit / SAMPLES.length : 0;
 }
 
 // ---- run ----
@@ -161,21 +176,30 @@ const report = {
   date: new Date().toISOString().slice(0, 10),
   npm: npmNote,
   baseline: { deckgl: BASELINE },
-  gate: { 1: v10 ? `open: ${v10}` : "closed: no deck.gl 10 on npm", 2: "not run", 3: "not run" },
+  gate: {
+    1: !v10 ? "closed: no deck.gl 10 on npm" : process.argv[2] ? `given: ${v10}` : `open: ${v10}`,
+    2: "not run", 3: "not run",
+  },
 };
 for (const k of ["proj4", "proj4dense"]) {
   const c = compare(base[k].mask, ref);
   report.baseline[k] = { error: base[k].error, drawn: c.drawn, maxPx: c.maxPx, within1: [c.toRef.within1, c.fromRef.within1], pass: c.pass };
 }
 const refInk = oneWay(ref, ref).ink;
-const harnessOk = !base.ref.error && refInk > 1000 && report.baseline.proj4dense.pass && !report.baseline.proj4.pass;
+const refDrawn = drawnShare(ref);
+const harnessOk = !base.ref.error && !base.proj4.error && !base.proj4dense.error && refInk > 1000 && refDrawn >= 0.99 &&
+  report.baseline.proj4dense.pass && !report.baseline.proj4.pass && report.baseline.proj4.drawn > 0.3;
+report.baseline.refDrawn = refDrawn;
 report.baseline.refInk = refInk;
 report.baseline.harnessOk = harnessOk;
 
 if (v10) {
+  let stage = "install or build";
   try {
     const dir = prepare("v10", v10, "v10.js");
+    stage = "render";
     const r = (await render(dir, [["v10", "mode=v10"]], out)).v10;
+    stage = "compare";
     const c = compare(r.mask, ref);
     report.v10 = { version: v10, error: r.error, info: r.info, drawn: c.drawn, maxPx: c.maxPx, within1: [c.toRef.within1, c.fromRef.within1] };
     const draws = !r.error && c.drawn >= 0.9;
@@ -183,7 +207,7 @@ if (v10) {
     report.gate[3] = !draws ? "not run (gate 2 closed)" : c.pass ? "open" : `closed: up to ${c.maxPx} px from PROJ`;
   } catch (e) {
     report.v10 = { version: v10, error: String(e.message || e) };
-    report.gate[2] = `closed: install or build failed: ${String(e.message || e).split("\n")[0]}`;
+    report.gate[2] = `closed: ${stage} failed: ${String(e.message || e).split("\n")[0]}`;
   }
 }
 
@@ -199,6 +223,13 @@ md += `| proj4js, sparse vertices | ${pct(report.baseline.proj4.within1[0])}, ${
 md += `| proj4js, densified 0.05 deg | ${pct(report.baseline.proj4dense.within1[0])}, ${pct(report.baseline.proj4dense.within1[1])} | ${report.baseline.proj4dense.maxPx} | ${report.baseline.proj4dense.pass ? "yes" : "no"} |\n`;
 if (report.v10 && report.v10.within1) md += `| deck.gl ${v10}, renderer reprojection | ${pct(report.v10.within1[0])}, ${pct(report.v10.within1[1])} | ${report.v10.maxPx} | ${report.gate[3] === "open" ? "yes" : "no"} |\n`;
 md += `\nHarness ${harnessOk ? "ok" : "BROKEN: the baseline did not behave as expected"}.\n`;
+
+// Has a gate changed state since expect-gate.json was last updated?
+const expected = JSON.parse(fs.readFileSync(path.join(here, "expect-gate.json"), "utf8"));
+const stateOf = (s) => String(s).split(":")[0];   // open, closed, given or not run
+const changed = process.argv[2] ? [] : ["1", "2", "3"].filter((g) => stateOf(report.gate[g]) !== expected[g]);
+if (changed.length) md += `\nGate state changed (${changed.map((g) => `${g}: ${expected[g]} to ${stateOf(report.gate[g])}`).join(", ")}). Act on decision 0012, then update expect-gate.json.\n`;
 fs.writeFileSync(path.join(out, "summary.md"), md);
 console.log("\n" + md);
 if (!harnessOk) process.exit(1);
+if (changed.length) process.exit(3);
