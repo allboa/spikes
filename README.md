@@ -14,3 +14,6 @@ came from gets a follow-up note.
 
 - [`probes/rasterlayer-3031/`](probes/rasterlayer-3031/): decision 0001, does
   deck.gl-raster's `RasterLayer` draw over the pole in EPSG:3031.
+- [`probes/deckgl-crs-gate/`](probes/deckgl-crs-gate/): decision 0012's gate,
+  can a deck.gl release draw lon/lat data in an EPSG:3031 view by itself,
+  within 1 px of PROJ.
