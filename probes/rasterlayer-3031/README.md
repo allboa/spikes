@@ -33,6 +33,22 @@ Still open from 0001's proposal:
 
 Screenshots and the full table for that run are in `record/2026-11-03/`.
 
+## Result on 2026-11-21
+
+deck.gl-raster 0.10.0 (released 2026-11-09) is pinned in `versions.json` and
+behaves as 0.9.0 does: every case draws, with the same meshes (4 vertices
+for the EPSG:3031 COG; 10005 vertices and 0.341 px left for the full lon/lat
+image; 8265 vertices and 0.125 px for the 90..270 image). `maxIterations` is
+still an option of the mesh refinement in `@developmentseed/raster-reproject`
+and not a `RasterLayer` prop.
+
+For gate A (decision 0003, R-planned tiles): 0.10.0's tile traversal
+(`raster-tileset/raster-tile-traversal`) selects tiles in Web Mercator common
+space, and adds a GlobeView path. It has no path for a flat view in another
+CRS, so there is nothing here yet to replace R-planned tiles in a polar view.
+
+The table for that run (0.10.0 and the beta tag) is in `record/2026-11-21/`.
+
 ## How it works
 
 `run.mjs` reads `versions.json` (named entries, each pinning the
