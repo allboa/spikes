@@ -47,6 +47,8 @@ For gate A (decision 0003, R-planned tiles): 0.10.0's tile traversal
 space, and adds a GlobeView path. It has no path for a flat view in another
 CRS, so there is nothing here yet to replace R-planned tiles in a polar view.
 
+The table for that run (0.10.0 and the beta tag) is in `record/2026-11-21/`.
+
 ## How it works
 
 `run.mjs` reads `versions.json` (named entries, each pinning the

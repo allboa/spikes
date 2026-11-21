@@ -57,13 +57,15 @@ Two things keep it closed (31 percent of the reference drawn, 90 needed):
 - **No subdivision.** The alpha reprojects each vertex and joins them with
   straight lines in the view. Without the area of use its drawing matches
   sparse proj4js on deck.gl 9.4 to the pixel (48.4 percent both ways).
-- **Clamping to the CRS area of use.** The view takes rendering bounds from
-  the CRS's area of use, which PROJ's PROJJSON for EPSG:3031 gives as south
-  of 60 S. Everything north of that is drawn on the 60 S circle. The
-  diagnostic row removes `bbox`, `area` and `id` from the view CRS to show
-  this; it is never part of a gate.
+- **Clamping to the CRS area of use.** PROJ's PROJJSON for EPSG:3031 carries
+  an area of use south of 60 S (`bbox`), and math.gl clamps input latitude
+  to it before projecting. Every vertex north of 60 S, points included, is
+  moved onto the 60 S circle. The diagnostic row removes `bbox`, `area` and
+  `id` from the view CRS to show this; it is never part of a gate.
 
-Vertex positions are right in both, so points already agree with PROJ.
+So in the gated run only the data south of 60 S is in the right place. In the
+diagnostic run every vertex, and so every point, agrees with PROJ; the edges
+between vertices are what is left.
 
 ## The v10 page
 
