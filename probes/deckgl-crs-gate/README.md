@@ -41,14 +41,41 @@ shows the harness works:
 So proj4js agrees with PROJ to the pixel on these lines once they are
 densified; what a renderer must add is the subdivision.
 
-## When v10 appears
+## Result on 2026-11-21
 
-`src/v10.js` is written before v10's API is published. It looks for a custom
-projection view export (`_CustomProjectionView`, `CustomProjectionView`,
-`ProjectedView`) and records which exist; anything it cannot do is a page
-error, and the gate reports gate 2 closed with that error. That report is
-the signal to fix `src/v10.js` to the real API (view props, camera units),
-which is the only file that should need to change.
+deck.gl 10.0.0-alpha.1 reached npm on 2026-11-12, so gate 1 is open. Gate 2
+is closed, and the page now uses the alpha's real API, so that is deck.gl's
+answer and not the probe's:
+
+| drawing | within 1 px (to ref, from ref) | largest gap px | passes |
+| --- | --- | --- | --- |
+| deck.gl 10.0.0-alpha.1, renderer reprojection | 45.1%, 28.2% | more than 10 | no |
+| the same, view CRS without its area of use (diagnostic) | 48.4%, 48.4% | more than 10 | no |
+
+Two things keep it closed (31 percent of the reference drawn, 90 needed):
+
+- **No subdivision.** The alpha reprojects each vertex and joins them with
+  straight lines in the view. Without the area of use its drawing matches
+  sparse proj4js on deck.gl 9.4 to the pixel (48.4 percent both ways).
+- **Clamping to the CRS area of use.** The view takes rendering bounds from
+  the CRS's area of use, which PROJ's PROJJSON for EPSG:3031 gives as south
+  of 60 S. Everything north of that is drawn on the 60 S circle. The
+  diagnostic row removes `bbox`, `area` and `id` from the view CRS to show
+  this; it is never part of a gate.
+
+Vertex positions are right in both, so points already agree with PROJ.
+
+## The v10 page
+
+`src/v10.js` is written to the API of 10.0.0-alpha.1: the experimental
+`_CustomProjectionView` takes the target CRS as `crs`, and a view state of
+`center` (WGS84 lon/lat) and `zoom`, where a pixel is a target-CRS metre
+times 512 / 40075016.6855 times 2^zoom. Layers take PROJJSON in
+`coordinateSystem`. The page still looks for the other candidate names
+(`CustomProjectionView`, `ProjectedView`) and records which exist; anything
+it cannot do is a page error, and the gate reports gate 2 closed with that
+error. If a later prerelease changes the API, this is the only file that
+should need to change.
 
 To try a specific version: `node gate.mjs 10.0.0-alpha.1`.
 

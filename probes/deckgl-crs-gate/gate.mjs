@@ -195,13 +195,18 @@ report.baseline.harnessOk = harnessOk;
 
 if (v10) {
   let stage = "install or build";
+  let noArea = null;
   try {
     const dir = prepare("v10", v10, "v10.js");
     stage = "render";
-    const r = (await render(dir, [["v10", "mode=v10"]], out)).v10;
+    const rr = await render(dir, [["v10", "mode=v10"], ["v10-no-area", "mode=v10&bbox=0"]], out);
+    const r = rr.v10;
     stage = "compare";
     const c = compare(r.mask, ref);
-    report.v10 = { version: v10, error: r.error, info: r.info, drawn: c.drawn, maxPx: c.maxPx, within1: [c.toRef.within1, c.fromRef.within1] };
+    // Diagnostic only, never part of a gate: the view CRS without its area of use.
+    const cn = compare(rr["v10-no-area"].mask, ref);
+    noArea = { error: rr["v10-no-area"].error, drawn: cn.drawn, maxPx: cn.maxPx, within1: [cn.toRef.within1, cn.fromRef.within1], pass: cn.pass };
+    report.v10 = { version: v10, error: r.error, info: r.info, drawn: c.drawn, maxPx: c.maxPx, within1: [c.toRef.within1, c.fromRef.within1], noArea };
     const draws = !r.error && c.drawn >= 0.9;
     report.gate[2] = draws ? "open" : `closed: ${r.error ? "page error: " + r.error.split("\n")[0] : `only ${(100 * c.drawn).toFixed(0)} percent of the reference drawn`}`;
     report.gate[3] = !draws ? "not run (gate 2 closed)" : c.pass ? "open" : `closed: up to ${c.maxPx} px from PROJ`;
@@ -222,11 +227,15 @@ md += "| drawing | within 1 px (to ref, from ref) | largest gap px | passes |\n|
 md += `| proj4js, sparse vertices | ${pct(report.baseline.proj4.within1[0])}, ${pct(report.baseline.proj4.within1[1])} | ${report.baseline.proj4.maxPx} | ${report.baseline.proj4.pass ? "yes" : "no (expected: no subdivision)"} |\n`;
 md += `| proj4js, densified 0.05 deg | ${pct(report.baseline.proj4dense.within1[0])}, ${pct(report.baseline.proj4dense.within1[1])} | ${report.baseline.proj4dense.maxPx} | ${report.baseline.proj4dense.pass ? "yes" : "no"} |\n`;
 if (report.v10 && report.v10.within1) md += `| deck.gl ${v10}, renderer reprojection | ${pct(report.v10.within1[0])}, ${pct(report.v10.within1[1])} | ${report.v10.maxPx} | ${report.gate[3] === "open" ? "yes" : "no"} |\n`;
+if (report.v10 && report.v10.noArea) {
+  const n = report.v10.noArea;
+  md += `| deck.gl ${v10}, view CRS without its area of use (diagnostic) | ${pct(n.within1[0])}, ${pct(n.within1[1])} | ${n.maxPx} | ${n.pass ? "yes" : "no"} |\n`;
+}
 md += `\nHarness ${harnessOk ? "ok" : "BROKEN: the baseline did not behave as expected"}.\n`;
 
 // Has a gate changed state since expect-gate.json was last updated?
 const expected = JSON.parse(fs.readFileSync(path.join(here, "expect-gate.json"), "utf8"));
-const stateOf = (s) => String(s).split(":")[0];   // open, closed, given or not run
+const stateOf = (s) => String(s).split(":")[0].split(" (")[0];   // open, closed, given or not run
 const changed = process.argv[2] ? [] : ["1", "2", "3"].filter((g) => stateOf(report.gate[g]) !== expected[g]);
 if (changed.length) md += `\nGate state changed (${changed.map((g) => `${g}: ${expected[g]} to ${stateOf(report.gate[g])}`).join(", ")}). Act on decision 0012, then update expect-gate.json.\n`;
 fs.writeFileSync(path.join(out, "summary.md"), md);

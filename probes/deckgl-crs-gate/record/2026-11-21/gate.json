@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-21",
+  "npm": "dist-tags {\"v8-latest\":\"8.9.36\",\"beta\":\"10.0.0-alpha.1\",\"latest\":\"9.4.1\",\"v9.3-latest\":\"9.3.12\"}; 1 version(s) 10 or later",
+  "baseline": {
+    "deckgl": "9.4.1",
+    "proj4": {
+      "error": null,
+      "drawn": 0.4418052256532066,
+      "maxPx": ">10",
+      "within1": [
+        0.4837407490468715,
+        0.4841373315949587
+      ],
+      "pass": false
+    },
+    "proj4dense": {
+      "error": null,
+      "drawn": 0.9984164687252574,
+      "maxPx": 0,
+      "within1": [
+        1,
+        1
+      ],
+      "pass": true
+    },
+    "refDrawn": 0.9984164687252574,
+    "refInk": 13806,
+    "harnessOk": true
+  },
+  "gate": {
+    "1": "open: 10.0.0-alpha.1",
+    "2": "closed: only 31 percent of the reference drawn",
+    "3": "not run (gate 2 closed)"
+  },
+  "v10": {
+    "version": "10.0.0-alpha.1",
+    "error": null,
+    "info": {
+      "version": "10.0.0-alpha.1",
+      "exports": [
+        "_CustomProjectionView",
+        "OrthographicView"
+      ],
+      "mode": "v10"
+    },
+    "drawn": 0.3143309580364212,
+    "maxPx": ">10",
+    "within1": [
+      0.4513822688274547,
+      0.28197884977545995
+    ],
+    "noArea": {
+      "error": null,
+      "drawn": 0.4418052256532066,
+      "maxPx": ">10",
+      "within1": [
+        0.4837407490468715,
+        0.4841373315949587
+      ],
+      "pass": false
+    }
+  }
+}
